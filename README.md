@@ -43,8 +43,14 @@ CI workflow:
 - `.github/workflows/flutter-ci.yml`
 - `.github/workflows/firebase-hosting.yml`
 
+Deployment status:
+- PR preview deployment and `main` live deployment are configured through GitHub Actions + Firebase Hosting.
+
 Firebase Hosting deployment guide:
 - `docs/firebase-hosting-github-actions.md`
+
+Release checklist:
+- `docs/release-checklist.md`
 
 ## Notes on Imports
 Integrations for SongSelect/CCLI and Ultimate Guitar must follow provider licensing and terms. The backend schema and docs are prepared for compliant connector implementations.
