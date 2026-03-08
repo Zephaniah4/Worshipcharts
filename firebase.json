@@ -1,4 +1,7 @@
 {
+  "firestore": {
+    "rules": "backend/firebase/firestore.rules"
+  },
   "hosting": {
     "public": "apps/worship_app/build/web",
     "ignore": [
