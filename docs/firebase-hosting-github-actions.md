@@ -30,3 +30,5 @@ Add these repository secrets:
 1. Push a branch and open a PR to confirm preview URL is posted.
 2. Merge to `main` to trigger live deploy.
 3. Open Firebase Hosting console and verify latest release.
+
+Validation note: PR preview pipeline trigger check on 2026-03-08.
