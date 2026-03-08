@@ -44,14 +44,29 @@ jobs:
         working-directory: apps/worship_app
         run: flutter build web --release
 
+      - name: Evaluate Firebase secret availability
+        id: secret_check
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        run: |
+          if [ -n "$FIREBASE_SERVICE_ACCOUNT" ] && [ -n "$FIREBASE_PROJECT_ID" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Validate Firebase deploy secrets for main
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
         run: |
-          if [ -z "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" ]; then
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
             echo "FIREBASE_SERVICE_ACCOUNT secret is missing."
             exit 1
           fi
-          if [ -z "${{ secrets.FIREBASE_PROJECT_ID }}" ]; then
+          if [ -z "$FIREBASE_PROJECT_ID" ]; then
             echo "FIREBASE_PROJECT_ID secret is missing."
             exit 1
           fi
@@ -61,7 +76,7 @@ jobs:
         run: echo "Skipping Firebase preview deploy for fork PR because secrets are not exposed."
 
       - name: Deploy to Firebase Hosting (Preview)
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && secrets.FIREBASE_SERVICE_ACCOUNT != '' && secrets.FIREBASE_PROJECT_ID != ''
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && steps.secret_check.outputs.available == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v1
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
@@ -69,7 +84,7 @@ jobs:
           projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
 
       - name: Deploy to Firebase Hosting (Live)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.FIREBASE_SERVICE_ACCOUNT != '' && secrets.FIREBASE_PROJECT_ID != ''
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.secret_check.outputs.available == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v1
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
