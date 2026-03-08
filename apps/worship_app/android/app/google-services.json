@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "370681971963",
+    "project_id": "worship-charts-c0b65",
+    "storage_bucket": "worship-charts-c0b65.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:370681971963:android:66056dc1f8122707019c5e",
+        "android_client_info": {
+          "package_name": "com.example.worship_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3jOi14s2ODNfNKiH02ztNaR6Uqy5b1UY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
