@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSameUser(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function hasSetlistAccess(setlistId) {
+      return isSignedIn() && (
+        get(/databases/$(database)/documents/setlists/$(setlistId)).data.owner_uid == request.auth.uid ||
+        get(/databases/$(database)/documents/setlists/$(setlistId)/shares/$(request.auth.token.email)).data.permission in ['view', 'edit', 'manage']
+      );
+    }
+
+    match /songs/{songId} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /setlists/{setlistId} {
+      allow read, write: if isSignedIn();
+
+      match /shares/{collaboratorKey} {
+        allow read: if hasSetlistAccess(setlistId);
+        allow write: if isSignedIn();
+      }
+    }
+
+    match /sync_operations/{opId} {
+      allow create: if isSignedIn() && request.resource.data.user_id == request.auth.uid;
+      allow read: if isSignedIn() && resource.data.user_id == request.auth.uid;
+      allow update, delete: if false;
+    }
+  }
+}
