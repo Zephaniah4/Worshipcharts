@@ -14,6 +14,10 @@ Add these repository secrets:
 - `FIREBASE_PROJECT_ID`: Your Firebase project ID.
 - `FIREBASE_SERVICE_ACCOUNT`: JSON for a Firebase deploy service account key.
 
+If these secrets are missing, `main` deploys are configured to fail fast with a clear message.
+
+For pull requests from forks, preview deploy is skipped because GitHub does not expose repository secrets to fork workflows.
+
 ## Service Account Setup
 1. Open Google Cloud Console for your Firebase project.
 2. Create a service account for CI deploys.
@@ -30,3 +34,5 @@ Add these repository secrets:
 1. Push a branch and open a PR to confirm preview URL is posted.
 2. Merge to `main` to trigger live deploy.
 3. Open Firebase Hosting console and verify latest release.
+
+Validation note: PR preview pipeline trigger check on 2026-03-08.

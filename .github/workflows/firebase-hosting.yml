@@ -44,17 +44,33 @@ jobs:
         working-directory: apps/worship_app
         run: flutter build web --release
 
+      - name: Validate Firebase deploy secrets for main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          if [ -z "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" ]; then
+            echo "FIREBASE_SERVICE_ACCOUNT secret is missing."
+            exit 1
+          fi
+          if [ -z "${{ secrets.FIREBASE_PROJECT_ID }}" ]; then
+            echo "FIREBASE_PROJECT_ID secret is missing."
+            exit 1
+          fi
+
+      - name: Skip preview deploy for fork PRs
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == true
+        run: echo "Skipping Firebase preview deploy for fork PR because secrets are not exposed."
+
       - name: Deploy to Firebase Hosting (Preview)
-        if: github.event_name == 'pull_request'
-        uses: FirebaseExtended/action-hosting-deploy@v0
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && secrets.FIREBASE_SERVICE_ACCOUNT != '' && secrets.FIREBASE_PROJECT_ID != ''
+        uses: FirebaseExtended/action-hosting-deploy@v1
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           projectId: ${{ secrets.FIREBASE_PROJECT_ID }}
 
       - name: Deploy to Firebase Hosting (Live)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: FirebaseExtended/action-hosting-deploy@v0
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.FIREBASE_SERVICE_ACCOUNT != '' && secrets.FIREBASE_PROJECT_ID != ''
+        uses: FirebaseExtended/action-hosting-deploy@v1
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
